@@ -6,10 +6,12 @@ import { Input, Button} from '@mui/material';
 import Papa from "papaparse"
 import axios from "axios"
 import JSZip from 'jszip';
+import UnstyledTable from './components/Table';
 
 function App() {
   const fileInput = useRef(null)
   const [fileData, setFileData] = useState()
+  const [rowDataNotSaved, setRowDataNotSaved] = useState([])
   const handleClick = () => {
     fileInput.current.click()
   }
@@ -41,7 +43,7 @@ function App() {
     console.log(parseData)
     // //Download images multi async
     for(let i =0; i < parseData.length; i ++){
-      const response = axios.post('http://64.227.85.213:8443/api/v1/dowloadImages', {
+      const response = axios.post('http://localhost:8443/api/v1/dowloadImages', {
         "url": parseData[i][1],
         "fileName": parseData[i][0]
       })
@@ -49,18 +51,18 @@ function App() {
     }
     
     listResponsePromise = await Promise.all([...listResponsePromise])
-
-    for (let i = 0; i < listResponsePromise.length ; i++ ) {
-      console.log(i)
-      console.log(listResponsePromise[i].data)
+    
+    for (let i = 0; i < listResponsePromise.length; i++ ) {
+      console.log(listResponsePromise[i])
       if(listResponsePromise[i].data["ErrorCode"] === 2){
-        listImageNotSaved.push(listResponsePromise.push(listResponsePromise[i].data))
-        continue;
+        listImageNotSaved.push(listResponsePromise[i].data.data)
       }
       if(listResponsePromise[i].data.data.imageBase64){
       listImageSaved.push(listResponsePromise[i].data.data)
       }
     }
+
+    setRowDataNotSaved(listImageNotSaved)
 
     var zip = new JSZip();
     var img = zip.folder("images");
@@ -85,7 +87,7 @@ function App() {
 
 
   return(
-    <div>
+    <div className="App">
       <div className="upload input file">
           <input
               type="file"
@@ -96,6 +98,7 @@ function App() {
           <div onClick={() => handleClick()}></div>
       </div>
       <Button onClick={() => handleFileDataCSV(fileData)}>Parse JSon</Button>
+      <UnstyledTable rows={rowDataNotSaved}></UnstyledTable>
     </div>
   )
 }
