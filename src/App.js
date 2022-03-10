@@ -43,7 +43,7 @@ function App() {
     console.log(parseData)
     // //Download images multi async
     for(let i =0; i < parseData.length; i ++){
-      const response = axios.post('http://35.171.154.180:8443/api/v1/dowloadImages', {
+      const response = axios.post('http://64.227.85.213:8443/api/v1/dowloadImages', {
         "url": parseData[i][1],
         "fileName": parseData[i][0]
       })
