@@ -53,7 +53,6 @@ function App() {
     listResponsePromise = await Promise.all([...listResponsePromise])
     
     for (let i = 0; i < listResponsePromise.length; i++ ) {
-      console.log(listResponsePromise[i])
       if(listResponsePromise[i].data["ErrorCode"] === 2){
         listImageNotSaved.push(listResponsePromise[i].data.data)
       }
