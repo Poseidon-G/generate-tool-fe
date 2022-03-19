@@ -46,7 +46,8 @@ function App() {
         })
       })
       let parseData = (await promiseParseData).data;
-      parseData = parseData.filter((item) => item.length === 2)
+      parseData = parseData.filter((item) => item.length === 2 && item)
+      console.log(parseData)
       //get data Json
       return parseData
     }
@@ -63,8 +64,8 @@ function App() {
 
       //Download images multi async
       for(let i =0; i < parseData.length; i ++){
-        const response = axios.post('http://64.227.85.213:8443/api/v1/dowloadImages', {
-          "url": parseData[i][1],
+        const response = axios.post('http://64.227.85.213:8443/api/v1/downloadImages', {
+          "rawUrl": parseData[i][1],
           "fileName": parseData[i][0]
         })
         listResponsePromise.push(response)
@@ -73,11 +74,13 @@ function App() {
       listResponsePromise = await Promise.all([...listResponsePromise])
       
       for (let i = 0; i < listResponsePromise.length; i++ ) {
-        if(listResponsePromise[i].data["ErrorCode"] === 2){
-          imageNotSaved.push(listResponsePromise[i].data.data)
-        }
-        if(listResponsePromise[i].data.data.imageBase64){
-          imageSaved.push(listResponsePromise[i].data.data)
+        for(let item of listResponsePromise[i].data.data){
+          if(item.status === false){
+            imageNotSaved.push(item)
+          }
+          else{
+            imageSaved.push(item)
+          }
         }
       }
 
@@ -96,7 +99,7 @@ function App() {
       var img = zip.folder("images");
 
       for(const imageSaved of listImageSaved){
-        img.file(imageSaved.fileName, imageSaved.imageBase64, {base64: true});
+        img.file(imageSaved.fileName, imageSaved.imageAsBase64, {base64: true});
       }
 
       const result = new Promise((resolve, reject) => {
